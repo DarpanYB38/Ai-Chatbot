@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Ai Chatbot</h1>
+    </header>
+    <div class="chat-container">
+        <div class="chat-window">
+            <div id="chat-messages"></div>
+        </div>
+        <form id="chat-form">
+            {% csrf_token %}
+            <input type="text" id="user-input" name="message" placeholder="Type a message..." required>
+            <button type="submit" id="send-btn">Send</button>
+        </form>
+    </div>
+
+<script>
+    $(document).ready(function() {
+    $("#send-btn").click(function() {
+        let userInput = $("#user-input").val().trim();
+        if (!userInput) return;
+
+        $("#chat-messages").append(`<div class='message user'>${userInput}</div>`);
+        $("#user-input").val("");
+
+        $.ajax({
+            url: "/api/chat/",
+            method: "POST",
+            contentType: "application/json",  // ✅ Ensure JSON format
+            data: JSON.stringify({ message: userInput }),  // ✅ Send JSON data
+            success: function(response) {
+                $("#chat-messages").append(`<div class='message bot'>${response.message}</div>`);
+                $(".chat-window").scrollTop($(".chat-window")[0].scrollHeight);
+            },
+            error: function(xhr) {
+                console.log("Error:", xhr.responseText);
+            }
+        });
+    });
+});
+
+</script>
+</body>
+</html>
